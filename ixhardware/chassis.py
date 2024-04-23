@@ -16,6 +16,7 @@ PLATFORM_PREFIXES = (
     "TRUENAS-R",  # freenas certified replacement
     "FREENAS-MINI",  # minis tagged with legacy information
 )
+TRUENAS_QEMU = "IXKVM"
 TRUENAS_UNKNOWN = "TRUENAS-UNKNOWN"
 
 
@@ -28,5 +29,10 @@ def get_chassis_hardware(dmi: DMIInfo):
         # model information so let"s check the motherboard model as a
         # last resort
         return "TRUENAS-X"
+
+    if dmi.system_product_name == "qemu" and dmi.system_serial_number.startswith(
+        "ha"
+    ) and dmi.system_serial_number.endswith(("_c1", "_c2")):
+        return TRUENAS_QEMU
 
     return TRUENAS_UNKNOWN
