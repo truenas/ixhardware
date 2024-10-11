@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import date, datetime
+from functools import cache
 import logging
 import subprocess
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ __all__ = ["DMIInfo", "DMIParser", "parse_dmi"]
 
 @dataclass
 class DMIInfo:
-    bios_release_date: Optional[date] = None
+    bios_release_date: date | None = None
     ecc_memory: bool = False
     baseboard_manufacturer: str = ""
     baseboard_product_name: str = ""
@@ -28,7 +28,7 @@ class DMIParser:
     def parse(self, output: str) -> DMIInfo:
         return self._parse_dmi(output.splitlines())
 
-    def _parse_dmi(self, lines: [str]) -> DMIInfo:
+    def _parse_dmi(self, lines: list[str]) -> DMIInfo:
         info = DMIInfo()
 
         _type = None
@@ -89,11 +89,20 @@ class DMIParser:
         try:
             return datetime.strptime(string, formatter).date()
         except Exception as e:
-            logger.warning(f"Failed to format BIOS release date to datetime object: {e!r}")
+            logger.warning(
+                f"Failed to format BIOS release date to datetime object: {e!r}"
+            )
 
 
+@cache
 def parse_dmi() -> DMIInfo:
     return DMIParser().parse(
-        subprocess.run(DMIParser.command, check=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                       encoding="utf-8", errors="ignore").stdout
+        subprocess.run(
+            DMIParser.command,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            encoding="utf-8",
+            errors="ignore",
+        ).stdout
     )
