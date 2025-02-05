@@ -1,4 +1,4 @@
-from .dmi import DMIInfo
+from .dmi import DMIInfo, parse_dmi
 
 __all__ = ["PLATFORM_PREFIXES", "TRUENAS_UNKNOWN", "get_chassis_hardware"]
 
@@ -19,7 +19,10 @@ PLATFORM_PREFIXES = (
 TRUENAS_UNKNOWN = "TRUENAS-UNKNOWN"
 
 
-def get_chassis_hardware(dmi: DMIInfo):
+def get_chassis_hardware(dmi: DMIInfo | None = None) -> str:
+    if dmi is None:
+        dmi = parse_dmi()
+
     if dmi.system_product_name.startswith(PLATFORM_PREFIXES):
         return dmi.system_product_name
 
