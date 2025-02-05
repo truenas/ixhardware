@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["DMIInfo", "DMIParser", "parse_dmi"]
 
 
-@dataclass
+@dataclass(slots=True, frozen=True, kw_only=True)
 class DMIInfo:
     bios_release_date: date | None = None
     ecc_memory: bool = False
@@ -29,8 +29,7 @@ class DMIParser:
         return self._parse_dmi(output.splitlines())
 
     def _parse_dmi(self, lines: list[str]) -> DMIInfo:
-        info = DMIInfo()
-
+        info = dict()
         _type = None
         for line in lines:
             if "DMI type 0," in line:
@@ -49,30 +48,29 @@ class DMIParser:
 
             sect, val = [i.strip() for i in line.split(":", 1)]
             if sect == "Release Date":
-                info.bios_release_date = self._parse_bios_release_date(val)
+                info["bios_release_date"] = self._parse_bios_release_date(val)
             elif sect == "Manufacturer":
                 if _type == "SYSINFO":
-                    info.system_manufacturer = val
+                    info["system_manufacturer"] = val
                 else:
-                    info.baseboard_manufacturer = val
+                    info["baseboard_manufacturer"] = val
             elif sect == "Product Name":
                 if _type == "SYSINFO":
-                    info.system_product_name = val
+                    info["system_product_name"] = val
                 else:
-                    info.baseboard_product_name = val
+                    info["baseboard_product_name"] = val
             elif sect == "Serial Number" and _type == "SYSINFO":
-                info.system_serial_number = val
+                info["system_serial_number"] = val
             elif sect == "Version" and _type == "SYSINFO":
-                info.system_version = val
+                info["system_version"] = val
             elif sect == "I2C Slave Address":
-                info.has_ipmi = True
+                info["has_ipmi"] = True
             elif sect == "Error Correction Type":
-                info.ecc_memory = "ECC" in val
+                info["ecc_memory"] = "ECC" in val
                 # we break the for loop here since "16" is the last section
                 # that gets processed
                 break
-
-        return info
+        return DMIInfo(**info)
 
     def _parse_bios_release_date(self, string):
         parts = string.strip().split("/")
