@@ -14,6 +14,7 @@ PLATFORM_PREFIXES = (
     "TRUENAS-F",  # f-series (F60, F100, F130)
     "TRUENAS-H",  # h-series (H10, H20)
     "TRUENAS-R",  # freenas certified replacement
+    "TRUENAS-V",  # v-series (V140, V160, V260, V280)
     "FREENAS-MINI",  # minis tagged with legacy information
 )
 TRUENAS_UNKNOWN = "TRUENAS-UNKNOWN"
