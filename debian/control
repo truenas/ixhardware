@@ -14,6 +14,7 @@ Package: python3-ixhardware
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         ${python3:Depends}
+         ${python3:Depends},
+         dmidecode
 Description: Detect iXsystems hardware.
  This package detects iXsystems hardware.
